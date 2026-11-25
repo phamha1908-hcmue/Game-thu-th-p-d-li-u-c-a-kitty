@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Thám tử Dữ liệu – Toán 7</title>
+<style>
+:root{--bg:#f3f6f4;--card:#fff;--ink:#17302b;--mut:#5b716c;--pri:#0f766e;--ok:#15803d;--bad:#b91c1c;--line:#cfdcd8;--okb:#dcfce7;--badb:#fee2e2;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1a18;--card:#152623;--ink:#e6f2ef;--mut:#92aba5;--pri:#2dd4bf;--ok:#4ade80;--bad:#f87171;--line:#27403b;--okb:#12351f;--badb:#401919;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1a18;--card:#152623;--ink:#e6f2ef;--mut:#92aba5;--pri:#2dd4bf;--ok:#4ade80;--bad:#f87171;--line:#27403b;--okb:#12351f;--badb:#401919;color-scheme:dark}
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:17px/1.55 "Be Vietnam Pro","Segoe UI",system-ui,sans-serif}
+#app{max-width:680px;margin:0 auto;padding:14px}
+.card{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:20px;margin-bottom:12px}
+.big{font-size:56px;line-height:1}h1,h2{margin:.3em 0;line-height:1.25}h1{font-size:30px}
+p{margin:.5em 0}.mut{color:var(--mut)}
+button{font:inherit;cursor:pointer;border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:10px 14px;min-height:44px}
+button:focus-visible,input:focus-visible{outline:3px solid var(--pri);outline-offset:2px}
+.go{background:var(--pri);border-color:var(--pri);color:#fff;font-weight:700}
+:root[data-theme="dark"] .go{color:#06201c}@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .go{color:#06201c}}
+.hud{display:flex;justify-content:space-between;gap:8px;font-weight:600;font-size:15px;flex-wrap:wrap}
+.bar{height:8px;background:var(--line);border-radius:6px;margin:8px 0 12px;overflow:hidden}.bar i{display:block;height:100%;background:var(--pri)}
+.opt{display:block;width:100%;text-align:left;margin:8px 0}
+.row{display:flex;gap:8px;align-items:center;justify-content:space-between;margin:8px 0;padding:8px;border:2px solid var(--line);border-radius:12px}
+.row span{flex:1}.tg{padding:6px 10px;min-height:40px;font-size:15px}.tg.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+.ok{background:var(--okb);border-color:var(--ok)}.bad{background:var(--badb);border-color:var(--bad)}
+input{font:inherit;width:100%;padding:10px;border:2px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);margin:8px 0}
+.lock{pointer-events:none}.fb{margin-top:10px;padding:12px;border-radius:12px}
+.acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+</style></head><body><div id="app"></div>
+<script>
+const T=['Định tính','Định lượng'];
+const Z=[
+{n:'Màn 1: Phân loại dữ liệu',ic:'🔍',d:'Định tính hay định lượng? Có sắp thứ tự được không? Coi chừng những cái bẫy.',qs:[
+{t:'mc',q:'Dữ liệu định lượng được biểu diễn bằng gì?',o:['Số (số thực)','Chữ cái, kí hiệu','Từ ngữ','Hình ảnh'],a:0,e:'Định lượng là số; định tính là từ, chữ cái, kí hiệu…',h:'Lượng nghĩa là đo đếm được.'},
+{t:'mc',q:'Dãy “Tốt, Xuất sắc, Khá tốt, Trung bình” thuộc loại nào?',o:['Định lượng','Định tính, sắp thứ tự được','Định tính, không sắp thứ tự được','Không phải dữ liệu'],a:1,e:'Là chữ nên định tính; các mức đánh giá chất lượng xếp được từ thấp đến cao.',h:'Có thể xếp từ kém đến giỏi.'},
+{t:'mc',q:'Dãy “Nam Định, Thái Bình, Hưng Yên, Bắc Ninh” thuộc loại nào?',o:['Định lượng','Định tính, sắp thứ tự được','Định tính, không sắp thứ tự được','Vừa định tính vừa định lượng'],a:2,e:'Tên tỉnh là chữ và không có thứ tự tự nhiên.',h:'Tỉnh nào “hơn” tỉnh nào?'},
+{t:'sort',q:'Bài 1 (bạn An): phân loại từng dữ liệu.',it:[['Thời gian làm mỗi câu (phút): 15; 15; 15; 20; 25',1],['Số điểm ba môn Toán, Văn, Ngoại ngữ: 10; 9; 10',1],['Những môn An được 9,5 điểm: GDCD, Tin học, KHTN',0],['Những bạn đạt học lực giỏi: Mai, Nam, Hải',0]],e:'Số thì định lượng. Tên môn học và tên bạn là chữ nên định tính.',h:'Số hay chữ?'},
+{t:'sort',q:'Bài 3 (bác Hai bán trái cây): phân loại.',it:[['Các loại trái cây: cam, dưa hấu, xoài, ổi, chuối',0],['Khối lượng mỗi loại (kg): 18; 10; 12; 25; 8',1],['Những ngày bán cam trên 15 kg: thứ Hai, thứ Tư, thứ Bảy, Chủ nhật',0],['Thêm loại mới: thanh long, măng cụt, bưởi, đu đủ',0]],e:'“Thứ Hai, thứ Tư…” là tên ngày, tức chữ nên định tính, dù nói về chuyện bán hơn 15 kg.',h:'Cái bẫy: câu có nhắc “15 kg” nhưng dữ liệu là tên ngày.'},
+{t:'sort',q:'Bài 4 (dịch bệnh): phân loại.',it:[['Số ca nhiễm: 1 876 394 ca',1],['Thứ hạng: 28/224 quốc gia',1],['Địa phương: TP. Hồ Chí Minh, Bình Dương, Đồng Nai, Tây Ninh, Hà Nội',0],['Số bệnh nhân khỏi bệnh: 1 485 221',1]],e:'Số ca, số thứ hạng đều là số nên định lượng. Tên địa phương là định tính.',h:'Thứ hạng 28 vẫn là một con số.'},
+{t:'sort',q:'Bài 2: các cột của bảng khảo sát bài hát. Mỗi cột thuộc loại nào?',it:[['Tuổi (13, 14, 15…)',1],['Giới tính (Nam, Nữ)',0],['Mức độ yêu thích (Rất thích, Thích, Không thích)',0]],e:'Tuổi là số nên định lượng. Giới tính và mức độ yêu thích là chữ nên định tính.',h:'“Mức độ” nghe như số nhưng bảng ghi bằng chữ.'},
+{t:'num',q:'Bài 2: các tuổi là 14; 15; 14; 13; 15; 13; 13; 14; 15; 13. Tuổi trung bình của 10 bạn là bao nhiêu?',a:13.9,e:'Tổng = 139, chia 10 được 13,9.',h:'Cộng hết rồi chia cho 10.'}]},
+{n:'Màn 2: Tính đại diện',ic:'🎯',d:'Chọn ai để hỏi ý kiến? Một mẫu lệch sẽ cho kết luận sai.',qs:[
+{t:'mc',q:'Hãng hàng không muốn biết mức độ hài lòng của khách trên một chuyến bay. Cần lấy ý kiến của đối tượng nào?',o:['Toàn bộ hành khách trên chuyến bay đó','Chỉ khách khoang thương gia','Chỉ khách ngồi cạnh cửa sổ','Chỉ phi hành đoàn'],a:0,e:'Dữ liệu thu được phải đại diện cho toàn bộ đối tượng quan tâm.',h:'Đối tượng quan tâm là ai?'},
+{t:'mc',q:'Cách 1: hỏi 20 khách khoang thương gia. Cách 2: đánh số ngẫu nhiên 100 khách, hỏi khách số 5; 10; 15;…; 100. Cách nào hợp lí hơn?',o:['Cách 1','Cách 2','Cả hai như nhau','Không cách nào'],a:1,e:'Cách 2 chọn trải đều toàn chuyến bay. Cách 1 chỉ gồm một hạng ghế.',h:'Cách nào bỏ sót nhóm khách nào đó?'},
+{t:'mc',q:'Hãng dược thử thuốc cảm trên 100 người 20–30 tuổi, 95 người khỏi. Quảng cáo: “Tỉ lệ khỏi sau ba ngày đạt 95%”. Kết luận chung này hợp lí không?',o:['Hợp lí, vì 95 trên 100 là cao','Không, vì mẫu chỉ gồm người 20–30 tuổi','Không, vì phải thử đúng 1000 người','Hợp lí, vì thuốc nào cũng vậy'],a:1,e:'Mẫu thiếu trẻ em, người già… nên chưa đại diện cho mọi bệnh nhân cảm cúm.',h:'Còn nhóm tuổi nào bị bỏ ra ngoài?'},
+{t:'mc',q:'Bài 8: chỉ hỏi các bạn nam lớp 7A về món bánh mì rồi kết luận cho cả lớp 7A. Hợp lí không?',o:['Hợp lí','Không, vì thiếu các bạn nữ','Không, vì bánh mì không phải dữ liệu','Hợp lí nếu nam đông hơn'],a:1,e:'Muốn kết luận cho cả lớp thì phải có cả nam và nữ.',h:'Cả lớp gồm những ai?'},
+{t:'mc',q:'Muốn biết ý kiến học sinh cả trường về một việc. Cách nào hợp lí nhất?',o:['Chỉ hỏi các bạn câu lạc bộ Toán','Hỏi 10 bạn đứng đầu hàng','Bốc thăm ngẫu nhiên từ danh sách, có đủ các khối, nam và nữ','Hỏi các bạn thân của mình'],a:2,e:'Chọn ngẫu nhiên và bao quát các nhóm giúp mẫu đại diện.',h:'Ngẫu nhiên và đủ nhóm.'},
+{t:'mc',q:'Khảo sát môn thể thao ưa thích của cả trường nhưng chỉ hỏi đội tuyển bóng đá. Kết luận “đa số học sinh thích bóng đá” có đáng tin không?',o:['Đáng tin','Không, vì mẫu lệch về nhóm thích bóng đá','Đáng tin vì mẫu đông','Không, vì bóng đá không phải môn thể thao'],a:1,e:'Hỏi nhóm vốn thích bóng đá thì kết quả đương nhiên lệch.',h:'Họ đã thích sẵn rồi.'}]},
+{n:'Màn 3: Tính hợp lí',ic:'⚖️',d:'Săn lỗi trong bảng thống kê: tổng phần trăm, bộ phận và toàn thể.',qs:[
+{t:'mc',q:'Tiêu chí nào KHÔNG phải tiêu chí kiểm tra tính hợp lí?',o:['Tổng tỉ lệ phần trăm các thành phần bằng 100%','Số lượng bộ phận nhỏ hơn hoặc bằng toàn thể','Dữ liệu phải có tính đại diện','Số liệu phải là số chẵn'],a:3,e:'Không có yêu cầu số chẵn.',h:'Chọn tiêu chí nghe vô lí nhất.'},
+{t:'mc',q:'Ví dụ 5: các tỉ lệ 45%; 20%; 15%; 8%; 13% có tổng 101%. Điều này cho thấy gì?',o:['Bảng hợp lí hoàn toàn','Vi phạm tiêu chí tổng bằng 100%','Số học sinh bị sai','Dữ liệu không phải định tính'],a:1,e:'Tổng 101% là vi phạm. Nguyên nhân thường do làm tròn 7,5% thành 8% và 12,5% thành 13%.',h:'Cộng lại xem bằng bao nhiêu.'},
+{t:'num',q:'Trong bảng ví dụ 5 có 3 trên 40 bạn thích cầu lông. Tính tỉ lệ phần trăm chính xác (không làm tròn).',a:7.5,e:'3 : 40 = 0,075 tức 7,5%.',h:'3 chia 40 rồi nhân 100.'},
+{t:'mc',q:'Bài 7: sĩ số và số học sinh khá, giỏi. 7A1: 40 và 24; 7A2: 42 và 26; 7A3: 40 và 30; 7A4: 38 và 40; 7A5: 42 và 27. Lớp nào vô lí?',o:['7A1','7A2','7A4','7A5'],a:2,e:'Lớp 38 bạn mà có 40 bạn khá, giỏi, bộ phận lớn hơn toàn thể.',h:'So hai số trong mỗi dòng.'},
+{t:'mc',q:'Bài 10: một ô ghi tỉ lệ yêu thích môn Tiếng Anh là 110%. Vì sao vô lí?',o:['Vì tỉ lệ phần trăm không thể vượt 100%','Vì Tiếng Anh khó','Vì thiếu đơn vị','Vì phải là số lẻ'],a:0,e:'Một bộ phận không thể vượt toàn thể (100%).',h:'Tối đa là bao nhiêu phần trăm?'},
+{t:'num',q:'Bài 11: tỉ lệ các tổ lần lượt 20%; 30%; 15% và y%. Tính y.',a:35,e:'Tổng phải 100% nên y = 100 − 20 − 30 − 15 = 35.',h:'Tổng bằng 100.'},
+{t:'num',q:'Bài 11 tiếp: tổ 1 có 4 điểm 10 chiếm 20%. Tổ 4 chiếm 35%. Tìm x (số điểm 10 của tổ 4).',a:7,e:'Cả lớp có 4 : 0,2 = 20 điểm 10. Vậy x = 20 × 35% = 7. Kiểm tra: 6 là 30%, 3 là 15%, 4+6+3+7 = 20.',h:'Tìm tổng số điểm 10 trước.'},
+{t:'num',q:'Ví dụ 5: 18 bạn thích bóng đá chiếm 45%. Hỏi lớp 7D có bao nhiêu học sinh?',a:40,e:'18 : 0,45 = 40 học sinh.',h:'Toàn thể = bộ phận chia cho tỉ lệ.'}]},
+{n:'Màn 4: Tính toán với bảng',ic:'🧮',d:'Bảng trà sữa và đại lí xe máy: vừa phân loại vừa tính.',qs:[
+{t:'sort',q:'Bài 5 và 6: phân loại các cột.',it:[['Loại trà sữa (trân châu, khoai môn…)',0],['Số lượng bán (ly)',1],['Số tiền mỗi ly (đồng)',1],['Màu xe (Trắng, Đỏ, Đen, Xanh)',0],['Loại xe (Lead, Vision, Winner…)',0]],e:'Số lượng và tiền là số nên định lượng. Tên loại và màu là chữ nên định tính.',h:'Số hay chữ?'},
+{t:'num',q:'Bài 5: số ly bán được là 25; 18; 22; 28; 20; 24; 26; 30. Tổng số ly chị Hà bán trong Chủ nhật?',a:193,e:'25+18+22+28+20+24+26+30 = 193 ly.',h:'Cộng 8 số.'},
+{t:'num',q:'Bài 5: tính tổng tiền bán được, đơn vị nghìn đồng. Giá mỗi ly (nghìn đồng) theo thứ tự: 15; 18; 20; 22; 18; 18; 20; 25.',a:3817,e:'375+324+440+616+360+432+520+750 = 3 817 nghìn đồng.',h:'Nhân số ly với giá từng loại rồi cộng.'},
+{t:'num',q:'Bài 5e: vốn trung bình mỗi ly là 10 nghìn đồng. Tiền lãi trong ngày là bao nhiêu nghìn đồng?',a:1887,e:'Vốn = 193 × 10 = 1 930. Lãi = 3 817 − 1 930 = 1 887 nghìn đồng.',h:'Lãi = tiền bán − tiền vốn.'},
+{t:'mc',q:'Bài 6: số xe bán được: Lead 18, Vision 15, AirBlack 10, SH Mode 7, Winner 9, Vario 8, Wave Alpha 6. Loại bán nhiều nhất và ít nhất?',o:['Vision và Vario','Lead và Wave Alpha','AirBlack và SH Mode','Lead và SH Mode'],a:1,e:'Nhiều nhất là Lead (18), ít nhất là Wave Alpha (6).',h:'Tìm số lớn nhất và nhỏ nhất.'},
+{t:'num',q:'Bài 6: tổng số xe đại lí bán trong tuần?',a:73,e:'18+15+10+7+9+8+6 = 73 xe.',h:'Cộng 7 số.'},
+{t:'num',q:'Bài 6d: mỗi xe lãi 7,5 triệu đồng. Tổng tiền lãi cả tuần, tính bằng triệu đồng?',a:547.5,e:'73 × 7,5 = 547,5 triệu đồng.',h:'Lấy 73 nhân 7,5.'},
+{t:'mc',q:'Màu xe nào bán chạy nhất? Trắng: Lead 18 và Wave Alpha 6. Đỏ: Vision 15. Đen: AirBlack 10 và Vario 8. Xanh: SH Mode 7 và Winner 9.',o:['Trắng','Đỏ','Đen','Xanh'],a:0,e:'Trắng 24, Đỏ 15, Đen 18, Xanh 16. Màu Trắng nhiều nhất dù loại xe nào cũng không nhiều nhất ở cột Đỏ.',h:'Phải cộng theo từng màu.'}]},
+{n:'Boss cuối: Phiên tòa dữ liệu',ic:'👑',d:'Tổng hợp mọi kiến thức. Một câu sai là mất tim, chỉ có 3 tim.',qs:[
+{t:'mc',q:'Lớp có 45 học sinh. Bảng ghi 28 bạn nữ và 20 bạn nam. Có hợp lí không?',o:['Hợp lí','Không, vì 28 + 20 = 48 lớn hơn 45','Không, vì nữ nhiều hơn nam','Hợp lí vì cả hai nhỏ hơn 45'],a:1,e:'Hai bộ phận cộng lại phải bằng toàn thể (45).',h:'Cộng nam với nữ.'},
+{t:'num',q:'Khảo sát: Rất thích 30%; Thích 50%; Không thích k%. Biết bảng hợp lí. Tìm k.',a:20,e:'k = 100 − 30 − 50 = 20.',h:'Tổng bằng 100.'},
+{t:'mc',q:'Căng tin muốn biết mức hài lòng của cả trường nhưng chỉ phỏng vấn các bạn đứng đầu hàng mua cơm. Vấn đề là gì?',o:['Không có vấn đề','Mẫu không ngẫu nhiên, thiên về nhóm mua nhanh','Câu hỏi quá dài','Phải hỏi giáo viên'],a:1,e:'Người đứng đầu hàng không đại diện cho toàn trường.',h:'Ai không đứng đầu hàng?'},
+{t:'sort',q:'Phân loại hồ sơ học sinh.',it:[['Quê quán',0],['Chiều cao (cm)',1],['Xếp loại hạnh kiểm: Tốt, Khá, Đạt',0],['Số anh chị em ruột',1],['Môn học yêu thích',0]],e:'Số đo, số đếm là định lượng. Còn lại là chữ nên định tính.',h:'Số anh chị em là con số đếm được.'},
+{t:'mc',q:'Khảo sát 100 bạn trường X rồi kết luận “100% học sinh Việt Nam thích bóng đá”. Sai ở đâu?',o:['Không sai','Mẫu chỉ ở một trường nên chưa đại diện cho cả nước','Phải ghi 99%','Phải dùng dữ liệu định tính'],a:1,e:'Kết luận vượt ra ngoài phạm vi mẫu nên thiếu tính đại diện.',h:'Phạm vi của mẫu và của kết luận có bằng nhau không?'},
+{t:'num',q:'Lớp 7B có 40 bạn, mỗi bạn chọn đúng một môn: 22 bạn thích Toán, 10 bạn thích Văn, còn lại thích Anh. Tỉ lệ phần trăm bạn thích Anh là bao nhiêu?',a:20,e:'Số bạn thích Anh là 40 − 22 − 10 = 8. Tỉ lệ 8 : 40 = 20%.',h:'Tìm số bạn thích Anh trước.'}]}
+];
+let S;const app=h=>document.getElementById('app').innerHTML=h;
+function home(){app(`<div class="card"><div class="big">🕵️</div><h1>Thám tử Dữ liệu</h1><p>5 màn, ${Z.reduce((a,z)=>a+z.qs.length,0)} thử thách, khoảng 1 giờ. Phân loại, kiểm tra tính đại diện, săn lỗi bảng thống kê và tính toán.</p><p class="mut">Đúng được 100 điểm, chuỗi đúng liên tiếp cộng thêm. Dùng gợi ý bị trừ 40 điểm. Mỗi màn có 3 tim, hết tim thì làm lại màn đó. Bạn có 3 lượt gợi ý cho cả game.</p><button class="go" onclick="start()">Bắt đầu</button></div>`)}
+function start(){S={z:0,i:0,h:3,sc:0,st:0,hn:3,ok:0,n:0};intro()}
+function intro(){const z=Z[S.z];S.i=0;S.h=3;app(`<div class="card"><div class="big">${z.ic}</div><h2>${z.n}</h2><p>${z.d}</p><p class="mut">${z.qs.length} câu</p><button class="go" onclick="ask()">Vào màn</button></div>`)}
+function ask(){const z=Z[S.z],q=z.qs[S.i];S.sel=q.t=='sort'?q.it.map(()=>null):null;S.hint=false;S.done=false;
+let body='';
+if(q.t=='mc')body=q.o.map((o,k)=>`<button class="opt" onclick="pick(${k})">${o}</button>`).join('');
+if(q.t=='num')body=`<input id="v" inputmode="decimal" placeholder="Nhập đáp số (dùng dấu phẩy hoặc chấm)" onkeydown="if(event.key=='Enter')chk()"><button class="go" onclick="chk()">Trả lời</button>`;
+if(q.t=='sort')body=q.it.map((x,k)=>`<div class="row" id="r${k}"><span>${x[0]}</span><button class="tg" onclick="tog(${k},0)">Định tính</button><button class="tg" onclick="tog(${k},1)">Định lượng</button></div>`).join('')+`<button class="go" onclick="chk()">Kiểm tra</button>`;
+app(`<div class="hud"><span>${z.ic} ${z.n.split(':')[0]}</span><span>${'❤️'.repeat(S.h)}${'🖤'.repeat(3-S.h)}</span><span>⭐ ${S.sc}</span><span>🔥 ${S.st}</span></div><div class="bar"><i style="width:${S.i/z.qs.length*100}%"></i></div><div class="card"><p class="mut">Câu ${S.i+1}/${z.qs.length}</p><p><b>${q.q}</b></p><div id="qa">${body}</div><div class="acts" id="ha"><button onclick="hint()" ${S.hn?'':'disabled'}>💡 Gợi ý (${S.hn})</button></div><div id="fb"></div></div>`);
+const v=document.getElementById('v');if(v)v.focus()}
+function hint(){const q=Z[S.z].qs[S.i];if(S.hint||!S.hn||S.done)return;S.hint=true;S.hn--;document.getElementById('ha').innerHTML=`<p class="mut">💡 ${q.h}</p>`}
+function tog(k,v){if(S.done)return;S.sel[k]=v;document.querySelectorAll(`#r${k} .tg`).forEach((b,j)=>b.classList.toggle('on',j==v))}
+function pick(k){if(S.done)return;const q=Z[S.z].qs[S.i];document.querySelectorAll('.opt').forEach((b,j)=>{if(j==q.a)b.classList.add('ok');else if(j==k)b.classList.add('bad')});fin(k==q.a)}
+function chk(){if(S.done)return;const q=Z[S.z].qs[S.i];
+if(q.t=='num'){const raw=document.getElementById('v').value.trim().replace(',','.').replace(/\s/g,'');const x=parseFloat(raw);if(isNaN(x)){document.getElementById('fb').innerHTML='<p class="mut">Hãy nhập một số.</p>';return}fin(Math.abs(x-q.a)<0.011)}
+else{if(S.sel.includes(null)){document.getElementById('fb').innerHTML='<p class="mut">Hãy chọn loại cho tất cả các dòng.</p>';return}
+let all=true;q.it.forEach((x,k)=>{const r=S.sel[k]==x[1];if(!r)all=false;document.getElementById('r'+k).classList.add(r?'ok':'bad');if(!r)document.getElementById('r'+k).insertAdjacentHTML('beforeend',`<small>→ ${T[x[1]]}</small>`)});fin(all)}}
+function fin(ok){S.done=true;S.n++;const z=Z[S.z],q=z.qs[S.i];document.getElementById('qa').classList.add('lock');document.getElementById('ha').innerHTML='';
+let msg;if(ok){const g=100+Math.min(S.st,5)*20-(S.hint?40:0);S.sc+=g;S.st++;S.ok++;msg=`✅ Chính xác! +${g} điểm`}
+else{S.h--;S.st=0;msg='❌ Chưa đúng. Mất 1 tim.'+(q.t=='num'?` Đáp số: <b>${q.a}</b>.`:'')}
+let btn;if(!ok&&S.h<=0)btn='<button class="go" onclick="intro()">Hết tim, làm lại màn này</button>';
+else{const last=S.i>=z.qs.length-1;btn=`<button class="go" onclick="next()">${last?'Hoàn thành màn':'Câu tiếp'}</button>`}
+document.getElementById('fb').innerHTML=`<div class="fb ${ok?'ok':'bad'}"><p><b>${msg}</b></p><p>${q.e}</p></div><div class="acts">${btn}</div>`;
+if(!ok&&S.h<=0)S.n=Math.max(0,S.n)}
+function next(){const z=Z[S.z];if(S.i<z.qs.length-1){S.i++;ask();return}
+const b=S.h*30;S.sc+=b;
+if(S.z<Z.length-1){app(`<div class="card"><div class="big">🎉</div><h2>Qua ${z.n.split(':')[0]}!</h2><p>Thưởng ${S.h} tim còn lại: +${b} điểm</p><p>Tổng điểm: ⭐ ${S.sc}</p><button class="go" onclick="S.z++;intro()">Màn tiếp theo</button></div>`)}
+else end()}
+function end(){const p=S.ok/S.n,r=p>=.9?'Thám tử Huyền thoại 🏆':p>=.75?'Chuyên gia Dữ liệu 🥇':p>=.55?'Thám tử tập sự 🥈':'Tân binh chăm chỉ 🥉';
+app(`<div class="card"><div class="big">🏁</div><h1>${r}</h1><p>Điểm: <b>⭐ ${S.sc}</b></p><p>Đúng ${S.ok} trên ${S.n} lần trả lời (${Math.round(p*100)}%)</p><p class="mut">Các câu sai thường nằm ở bẫy “thứ Hai, thứ Tư… là chữ”, hoặc quên cộng tổng phần trăm. Chơi lại để phá kỉ lục.</p><button class="go" onclick="start()">Chơi lại</button></div>`)}
+home();
+</script></body></html>
